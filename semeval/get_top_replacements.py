@@ -24,8 +24,6 @@ def main():
                       help='Target term(s), comma-separated: default=%default')
     parser.add_option('--is-random', action="store_true", default=False,
                       help="Target it from random background terms: default=%default")
-    parser.add_option('--no-pos', action="store_true", default=False,
-                      help="Ignore part of speech tags (English only): default=%default")
     parser.add_option('--top-k', type=int, default=5,
                       help='Top-k terms to keep: default=%default')
     (options, args) = parser.parse_args()
@@ -36,7 +34,10 @@ def main():
     target_terms = options.target_terms
     top_k = options.top_k
     is_random = options.is_random
-    no_pos = options.no_pos
+
+    no_pos = False
+    if lang == 'eng':
+        no_pos = True
 
     subdir = 'subs_masked'
     if no_pos:

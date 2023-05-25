@@ -31,8 +31,6 @@ def main():
                       help='Top-k terms to keep: default=%default')
     parser.add_option('--window-factor', type=float, default=2.0,
                       help='Factor by which to get nearby terms: default=%default')
-    parser.add_option('--no-pos', action="store_true", default=False,
-                      help="Ignore part of speech tags (English only): default=%default")
 
     (options, args) = parser.parse_args()
 
@@ -42,7 +40,10 @@ def main():
     strip_accents = options.strip_accents
     top_k = options.top_k
     window_factor = options.window_factor
-    no_pos = options.no_pos
+
+    no_pos = False
+    if lang == 'eng':
+        no_pos = True
 
     targets_subdir = 'subs_masked'
     if no_pos:

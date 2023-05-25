@@ -28,8 +28,6 @@ def main():
                       help='Use lower cased input: default=%default')
     parser.add_option('--strip-accents', action="store_true", default=False,
                       help='Strip accents when tokenizing: default=%default')
-    parser.add_option('--no-pos', action="store_true", default=False,
-                      help='Use the targets with POS tags (for English only): default=%default')
 
     (options, args) = parser.parse_args()
 
@@ -38,7 +36,10 @@ def main():
     model = options.model
     lower = options.lower
     strip_accents = options.strip_accents
-    no_pos = options.no_pos
+
+    no_pos = False
+    if lang == 'eng':
+        no_pos = True
 
     model_name = get_model_name(model)
 

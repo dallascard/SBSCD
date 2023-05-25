@@ -15,7 +15,7 @@ from common.misc import get_model_name, get_subdir
 # Tokenize a corpus
 
 def main():
-    usage = "%prog "
+    usage = "%prog"
     parser = OptionParser(usage=usage)
     parser.add_option('--basedir', type=str, default='/data/dalc/COHA/',
                       help='Base directory: default=%default')
