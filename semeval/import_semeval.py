@@ -60,7 +60,7 @@ def main():
         print(infile)
         basename = os.path.basename(infile)
         name = basename.split('.')[0]
-        with gzip.open(infile) as f:
+        with gzip.open(infile, 'rb') as f:
             lines = f.readlines()
         lemma_lines_by_name[name] = len(lines)
         for l_i, line in enumerate(tqdm(lines)):
@@ -138,7 +138,7 @@ def main():
         print(infile)
         basename = os.path.basename(infile)
         name = basename.split('.')[0]
-        with gzip.open(infile) as f:
+        with gzip.open(infile, 'rb') as f:
             lines = f.readlines()
 
         assert len(lines) == lemma_lines_by_name[name]
