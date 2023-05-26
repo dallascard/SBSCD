@@ -63,8 +63,8 @@ def main():
         no_pos = True
 
     if use_random_targets:
-        index_file = 'random_token_indices.json'
-        output_subdir = 'random_subs_masked_tokens'
+        index_file = 'random_indices_in_tokens.json'
+        output_subdir = 'random_subs_masked'
     elif no_pos:
         index_file = 'target_indices_in_tokens_nopos.json'
         output_subdir = 'subs_masked_nopos'
