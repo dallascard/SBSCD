@@ -1,5 +1,6 @@
 import os
 import re
+import gzip
 import json
 from glob import glob
 from collections import Counter, defaultdict
@@ -48,7 +49,7 @@ def main():
         os.makedirs(outdir_lemmas_dir)
 
     # Read in the lemma files
-    files = sorted(glob(os.path.join(lang_dir, 'corpus*', 'lemma', '*.txt')))
+    files = sorted(glob(os.path.join(lang_dir, 'corpus*', 'lemma', '*.txt.gz')))
     print(files)
     assert len(files) == 2
 
@@ -59,7 +60,7 @@ def main():
         print(infile)
         basename = os.path.basename(infile)
         name = basename.split('.')[0]
-        with open(infile) as f:
+        with gzip.open(infile) as f:
             lines = f.readlines()
         lemma_lines_by_name[name] = len(lines)
         for l_i, line in enumerate(tqdm(lines)):
@@ -128,7 +129,7 @@ def main():
         os.makedirs(outdir_tokens_dir)
 
     # Read in the orignal files
-    files = sorted(glob(os.path.join(lang_dir, 'corpus*', 'token', '*.txt')))
+    files = sorted(glob(os.path.join(lang_dir, 'corpus*', 'token', '*.txt.gz')))
     print(files)
     assert len(files) == 2
 
@@ -137,7 +138,7 @@ def main():
         print(infile)
         basename = os.path.basename(infile)
         name = basename.split('.')[0]
-        with open(infile) as f:
+        with gzip.open(infile) as f:
             lines = f.readlines()
 
         assert len(lines) == lemma_lines_by_name[name]

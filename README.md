@@ -6,7 +6,7 @@ It contains code to perform substitution-based semantic change detection for tar
 
 Using this approach to semenatic change detection involves running a pipeline of scripts, which cover tokenization, continued masked langauge model pretraining, indexing terms, getting substitutes, and finally computing amount of change using Jensen-Shannon divergence. Intermediate products produced include the substitutes for each sampled mention, which can be used for additional analyses, as is done in the paper.
 
-#### Requirements
+### Requirements
 
 The python packages used (along with the versions used) for this repo include:
 - numpy
@@ -106,7 +106,7 @@ For each SemEval script, the language can be specified using the `--lang` argume
 10. Evaluate:
 `python -m semeval.evaluate_semeval --basedir <basedir>`
 
-Scripts have also been included for various other parts the paper:
+Scripts have also been included for various other parts the analysis:
 
 1. Getting the top replacement terms:
 `python -m semeval.get_top_replacements --basedir <basedir>`
@@ -114,6 +114,17 @@ Scripts have also been included for various other parts the paper:
 2. Doing the clustering analysis:
 `python -m semeval.do_clustering --basedir <basedir>`
 
-3. Making Figure 1 in maina pper
+3. Making Figure 1 in maina paper
 `python -m semeval.make_figure --basedir <basedir>`
 
+
+### Citation / Reference
+
+```
+@inproceedings{card-etal-2020-little,
+    title = "Substitution-based Semantic Change Detection using Contextual Embeddings",
+    author = "Dallas Card"
+    booktitle = "Proceedings of the 61st Annual Meeting of the Association for Computational Linguistics",
+    year = "2023",
+}
+```
