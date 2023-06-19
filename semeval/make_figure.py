@@ -286,9 +286,9 @@ def main():
     ax.set_xlim(-0.05, 1.10)
     ax.set_ylabel('Human rating')
     ax.set_xlabel('Scaled JSD')
-    outfile = os.path.join(outdir, 'jsd_combined_' + lang + '.pdf')
-    plt.savefig(outfile, bbox_inches='tight', dpi=600)
-    plt.show();    
+    outfile = os.path.join(outdir, 'jsd_combined_' + lang + '.jpg')
+    plt.savefig(outfile, bbox_inches='tight', dpi=1200)
+    plt.show()
 
 
 if __name__ == '__main__':
