@@ -233,7 +233,7 @@ def main():
     ols_model = sm.OLS(df4['score'].values, sm.add_constant(df4['relative_jsd']))
     est = ols_model.fit()
 
-    fig, axes = plt.subplots(nrows=2, figsize=(5, 6))
+    fig, axes = plt.subplots(nrows=2, figsize=(4.6, 6))
     plt.subplots_adjust(hspace=0.35)
 
     ax = axes[0]
