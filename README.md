@@ -101,6 +101,8 @@ For each SemEval script, the language can be specified using the `--lang` argume
 10. Evaluate:
 `python -m semeval.evaluate_semeval --basedir <basedir>`
 
+### Additional scripts
+
 Scripts have also been included for various other parts the analysis:
 
 1. Getting the top replacement terms:
@@ -111,40 +113,6 @@ Scripts have also been included for various other parts the analysis:
 
 3. Making Figure 1 in maina paper
 `python -m semeval.make_figure --basedir <basedir>`
-
-
-### Doing semantic change detection
-
-The generic approach assumes that one has a collection of documents from two different time periods (or sources) in jsonlist format, where each document is a json object with fields for text, source, and unique ID. By default, the assumption is these fields are named `test`, `group`, and `id`, but these can be set using command line options. (Scripts have been provided to coerce the experimental datasets used in the paper into this format). This also assumes that one has a list of target terms of interest in a text file (<targets.tsv>), with one word per line. By default, these terms are assumed to NOT be lemmatized (i.e., different word forms will be indexed separately), and not associated with part of speech tags (i.e., different syntactic forms of the same term will be treated equivalently).
-
-For a generic corpus in the above format, the pipeline assumes that one has a working directory (`<basedir>`). The masked language model to be used can be set using command line options (`bert-large-uncased` by default). The pipeline is as follows:
-
-1. Tokenize the raw text:
-`python -m general.tokenize --basedir <basedir> --infile <infile.jsonlist>`
-
-2. Export plain text for continued masked language model training of the base model:
-`python -m general.export_for_pretraining --basedir <basedir>`
-
-3. Run continued masked language model training of the base model:
-`python -m general.run_mlm --basedir <basedir>`
-
-4. Index the target terms:
-`python -m general.index_targets --basedir <basedir> --targets-file <targets.tsv>`
-
-5. Index random background terms:
-`python -m general.index_random_tokens --basedir <basedir> --targets-file <targets.tsv>`
-
-6. Get substitutes for target terms:
-`python -m general.get_substitutes --basedir <basedir>`
-
-7. Get substitutes for random terms:
-`python -m general.get_substitutes --basedir <basedir> --random-targets`
-
-8. Compute Scaled JSD:
-`python -m general.compute_jsds --basedir <basedir>`
-
-This will produce a .csv and .json file with the scaled JSD scores per target term. These will be located in a subdirectory of `<basedir>` named `tokenized_<model>`.
-
 
 
 ### Citation / Reference
