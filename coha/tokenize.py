@@ -19,8 +19,8 @@ def main():
     parser = OptionParser(usage=usage)
     parser.add_option('--basedir', type=str, default='/data/dalc/COHA/',
                       help='Base directory: default=%default')
-    parser.add_option('--infile', type=str, default='/data/dalc/COHA/clean/all.jsonlist',
-                      help='File with corpus to be tokenized: default=%default')
+    #parser.add_option('--infile', type=str, default='/data/dalc/COHA/clean/all.jsonlist',
+    #                  help='File with corpus to be tokenized: default=%default')
     parser.add_option('--id-field', type=str, default='id',
                       help='ID field name: default=%default')
     parser.add_option('--text-field', type=str, default='text',
@@ -31,11 +31,12 @@ def main():
     (options, args) = parser.parse_args()
 
     basedir = options.basedir
-    infile = options.infile
     id_field = options.id_field
     text_field = options.text_field
     model_name_or_path = options.model
-    
+
+    infile = os.path.join(basedir, 'clean', 'all.jsonlist')
+
     model_name = get_model_name(model_name_or_path)
 
     outdir = get_subdir(basedir, model_name)
