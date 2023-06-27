@@ -233,7 +233,7 @@ def main():
     ols_model = sm.OLS(df4['score'].values, sm.add_constant(df4['relative_jsd']))
     est = ols_model.fit()
 
-    fig, axes = plt.subplots(nrows=2, figsize=(5, 6))
+    fig, axes = plt.subplots(nrows=2, figsize=(4.6, 6))
     plt.subplots_adjust(hspace=0.35)
 
     ax = axes[0]
@@ -286,9 +286,9 @@ def main():
     ax.set_xlim(-0.05, 1.10)
     ax.set_ylabel('Human rating')
     ax.set_xlabel('Scaled JSD')
-    outfile = os.path.join(outdir, 'jsd_combined_' + lang + '.pdf')
-    plt.savefig(outfile, bbox_inches='tight', dpi=600)
-    plt.show();    
+    outfile = os.path.join(outdir, 'jsd_combined_' + lang + '.jpg')
+    plt.savefig(outfile, bbox_inches='tight', dpi=1200)
+    plt.show()
 
 
 if __name__ == '__main__':
