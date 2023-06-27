@@ -47,7 +47,7 @@ For a generic corpus in the above format, the pipeline assumes that one has a wo
 `python -m general.get_substitutes --basedir <basedir> --random-targets`
 
 8. Compute Scaled JSD:
-`python -m general.compute_jsd --basedir <basedir>`
+`python -m general.compute_jsds --basedir <basedir>`
 
 This will produce a .csv and .json file with the scaled JSD scores per target term. These will be located in a subdirectory of `<basedir>` named `tokenized_<model>`.
 
