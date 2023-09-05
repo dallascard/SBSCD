@@ -65,7 +65,8 @@ def main():
            '--overwrite_output_dir',
            '--num_train_epochs', str(epochs),
            '--logging_dir', os.path.join(data_dir, 'logs'),
-           '--save_total_limit', '0'
+           '--save_total_limit', '2',
+           '--save_strategy', 'no'
            ]
 
     with open(os.path.join(output_dir, 'my_cmd.txt'), 'w') as f:

@@ -49,7 +49,6 @@ logger = logging.getLogger(__name__)
 MODEL_CONFIG_CLASSES = list(MODEL_FOR_MASKED_LM_MAPPING.keys())
 MODEL_TYPES = tuple(conf.model_type for conf in MODEL_CONFIG_CLASSES)
 
-
 @dataclass
 class ModelArguments:
     """
@@ -80,6 +79,7 @@ class ModelArguments:
         default=True,
         metadata={"help": "Whether to use one of the fast tokenizer (backed by the tokenizers library) or not."},
     )
+
 
 
 @dataclass
@@ -127,6 +127,10 @@ class DataTrainingArguments:
             "If False, will pad the samples dynamically when batching to the maximum length in the batch."
         },
     )
+    #save_strategy: Optional[str] = field(
+    #    default="no",
+    #    metadata={"help": "The checkpoint save strategy to adopt during training."},
+    #)
 
     def __post_init__(self):
         if self.dataset_name is None and self.train_file is None and self.validation_file is None:
