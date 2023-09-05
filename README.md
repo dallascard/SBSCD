@@ -9,19 +9,69 @@ Using this approach to semenatic change detection involves running a pipeline of
 ### Requirements
 
 The python packages used (along with the versions used) for this repo include:
+- tqdm
 - numpy
 - scipy
 - pandas
-- tqdm
+- spacy
 - torch
 - transformers
 
-In addition, `networkx` was used for Louvain community detection in the clustering analysis, and `matplitlib` was used for making Figure 1
+In addition, `networkx` was used for Louvain community detection in the clustering analysis, and `matplotlib` was used for making Figure 1. An `environment.yaml` file has also been included for replication of the environment, which it should be possible to build using `conda env create -f environment.yml`.
 
+
+### General usage
+
+To replicate the experiments from the paper, see the other sections below. For more general usage, follow the instructions here.
+
+To begin, this assumes that you have two text corpora, along with (optionally) a list of target words as a `.tsv` file. The input format for the text corpora is that everything (both corpora together) should be in a single .jsonlist file. Each document should be a json object with an `id` field (containing a unique ID), a `text` field (containing the raw text), and a `source` field (indicating which of the two corpora it is part of). The names of these in your file can be specified on the command line.
+
+In the general usage, you can use this to do semantic change detection on words, lemmas, or part-of-speech-tagged lemmas. If using lemmas or tags, you will also need to lemmatize the text using the script provided. The pipeline for semantic change detection is as follows:
+
+1. Tokenize the text using an appropriate model:
+`python -m general.tokenize --basedir <basedir> --infile <infile.jsonlist> --model <model>`
+`<basedir>` is where all the work will happen
+`<infile.jsonlist>` is the jsonlist file with all of the documents as json objects
+`<model>` is the name of the model to use, such as `bert-large-uncased`.
+If necesary, you can also specify the names of the fields in the jsonlist file using `--id-field`, `--source-field` and `--text-field`.
+
+2. Optionally, lemmatize the text using an appropriate spacy model:
+`python -m general.lemmatize --basedir <basedir> --model <model> --spacy <spacy_model>`
+where `<basedir>` and `<model>` are the same as above, and `<spacy_model>` is an appropriate (language-specific) model, such as `en_core_web_sm`
+
+3. Export the data for continued masked language model training:
+`python -m general.export_for_pretraining --basedir <basedir> --model <model>`
+
+4. Do the continued masked language model training:
+`python -m general.run_mlm --basedir <basedir> --model <model> --cache-dir <cache_dir>`
+where `<cache_dir>` allows you to specify where to store cached files from huggingface
+
+5. Index terms (both target terms, and random background terms):
+`python -m general.index_terms --basedir <basedir> --model <model> --targets-file <targets_file>`
+Here, `<targets_file>` (optional) is the list of target words that you definitely want to be included. Other relevant parameters include:
+- `--lemmas`: set to use lemmas rather than words
+- `--pos`: Use POS tags from spacy to distinguish between word forms with different tags
+- `--min-count`: Exclude terms from random selection with less than this many occurrences
+- `--min-count-per-corpus`: Require at least this count in each corpus
+- `--max-terms`: Only take a random sample of up to this many unique terms
+- `--max-tokens`: Limit the number of tokens sampled per term
+
+6. Embed the terms and get substitutes:
+`python -m general.get_substitutes --basedir <basedir> --model <model>`
+Once again, use the `--lemmas` and `--pos` flags if you used them above. You can also point to a file with stopwords to be excluded from the substitutes, using `--stopwords-file`. 
+Other relevant parameters include `--max-window-size` and `--top-k`.
+
+7. Compute JSD and rescale to get final semantic change predictions:
+`python -m general.compute_jsds --basedir <basedir> --model <model>`
+Once again, use the `--lemmas` and `--pos` flags if you used them above. Other relevant factors include `--top-k` and `--window-factor` (see paper for details).
+
+The output of this will be a file called `<basedir>/embeddings_<model>/jsd_scores.csv` (and an equivalent `.json` file) containing the scaled estimate for all terms, including all target terms. 
+
+Additional scripts that may be useful include `evaluate.py` (which allows you to evaluate against gold scores) and `get_top_repalcements.py` (which gather the top replacement terms from each corpus).
 
 ### Replicating GEMS experiments
 
-To replicate the results on GEMS, one first needs to obtain the COHA dataset, as well as the GEMS target scores. The former can be obtained (for a fee) from Mark Davies. The latter were obtained from the authors of ...
+To replicate the results on GEMS, one first needs to obtain the COHA dataset, as well as the GEMS target scores. The former can be obtained (for a fee) from Mark Davies via [this website](https://www.english-corpora.org/coha/). The latter were obtained from the authors of Gulordava and Baroni (2011).
 
 The following pipeline can be used to replicate these experiments:
 
@@ -65,7 +115,7 @@ This will produce a .csv and .json file with the scaled JSD scores per target te
 
 ### Replicating SemEval experiments
 
-Becuase the SemEval targets are provided as lemmas, with multiple langauges, the pipeline for the experiments with these datasets is slightly different, even though the overall method is the same. In paritcular, the steps are essentially the same, except that there is an additional alignment step between the lemmatized and non-lemmatized text.
+Becuase the SemEval targets are provided as lemmas, with multiple langauges, the pipeline for the experiments with these datasets is slightly different, even though the overall method is the same. In paritcular, the steps are essentially the same, except that there is an additional alignment step between the lemmatized and non-lemmatized text. (This is unlike the general usage section above, which does the lemmatization using spacy).
 
 The SemEval data can be downloaded (separately for each langauge) from here: https://www.ims.uni-stuttgart.de/en/research/resources/corpora/sem-eval-ulscd/
 
@@ -101,8 +151,6 @@ For each SemEval script, the language can be specified using the `--lang` argume
 10. Evaluate:
 `python -m semeval.evaluate_semeval --basedir <basedir>`
 
-### Additional scripts
-
 Scripts have also been included for various other parts the analysis:
 
 1. Getting the top replacement terms:
@@ -113,6 +161,7 @@ Scripts have also been included for various other parts the analysis:
 
 3. Making Figure 1 in maina paper
 `python -m semeval.make_figure --basedir <basedir>`
+
 
 
 ### Citation / Reference
