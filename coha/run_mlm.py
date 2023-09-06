@@ -20,8 +20,6 @@ def main():
     parser = OptionParser(usage=usage)
     parser.add_option('--basedir', type=str, default='/data/dalc/COHA/',
                       help='Base directory: default=%default')
-    parser.add_option('--data-dir', type=str, default=None,
-                      help='Manually overwrite data directory (optional): default=%default')
     parser.add_option('--model', type=str, default='bert-large-uncased',
                       help='Model that was used for tokenization: default=%default')
     parser.add_option('--epochs', type=int, default=5,
@@ -34,7 +32,6 @@ def main():
     (options, args) = parser.parse_args()
 
     basedir = options.basedir
-    data_dir = options.data_dir
     model = options.model
     subdir_prefix = 'mlm_pretraining'
     epochs = options.epochs
@@ -43,8 +40,7 @@ def main():
 
     model_name = get_model_name(model)
 
-    if data_dir is None:
-        data_dir = get_subdir(basedir, model_name, prefix=subdir_prefix)
+    data_dir = get_subdir(basedir, model_name, prefix=subdir_prefix)
     print("Using data dir", data_dir)
 
     output_dir = os.path.join(data_dir, 'model')
