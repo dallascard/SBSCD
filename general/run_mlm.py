@@ -21,7 +21,7 @@ def main():
     parser.add_option('--basedir', type=str, default='/data/dalc/COHA/',
                       help='Base directory: default=%default')
     parser.add_option('--data-dir', type=str, default=None,
-                      help='Manually overwrite data directory (optional): default=%default')
+                      help='Manually specify data directory (optional): default=%default')
     parser.add_option('--model', type=str, default='bert-large-uncased',
                       help='Model that was used for tokenization: default=%default')
     parser.add_option('--epochs', type=int, default=5,
