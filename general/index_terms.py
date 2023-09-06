@@ -106,8 +106,8 @@ def main():
             target_lines = f.readlines()
         targets = set([line.strip().split('\t')[0] for line in target_lines])
 
-    multiword_targets = defaultdict(set)
-    multiword_target_dict = {}
+    multiword_targets = []
+    multiword_target_dict = defaultdict(set)
     for target in targets:
         parts = target.split()
         if len(parts) > 1:
