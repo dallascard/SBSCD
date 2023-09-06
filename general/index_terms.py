@@ -107,12 +107,12 @@ def main():
         targets = set([line.strip().split('\t')[0] for line in target_lines])
 
     multiword_targets = []
-    multiword_target_dict = defaultdict(set)
+    multiword_target_dict = defaultdict(list)
     for target in targets:
         parts = target.split()
         if len(parts) > 1:
             multiword_targets.append(target)
-            multiword_target_dict[parts[0]].add(parts[1:])
+            multiword_target_dict[parts[0]].append(parts[1:])
 
     term_counter = Counter()
     term_counter_per_corpus = defaultdict(Counter)
