@@ -102,6 +102,14 @@ def main():
             target_lines = f.readlines()
         targets = set([line.strip().split('\t')[0] for line in target_lines])
 
+    multiword_targets = defaultdict(set)
+    multiword_target_dict = {}
+    for target in targets:
+        parts = target.split()
+        if len(parts) > 1:
+            multiword_targets.append(target)
+            multiword_target_dict[parts[0]].add(parts[1:])
+
     term_counter = Counter()
     term_counter_per_corpus = defaultdict(Counter)
     term_indices = defaultdict(list)    
@@ -124,6 +132,12 @@ def main():
                 tokens = [re.sub('##', '', token) for token in tokens]        
             term_counter.update(tokens)
             term_counter_per_corpus[source].update(tokens)
+            # also count targets with multiple words
+            text = ' '.join(tokens)
+            for target in multiword_targets:
+                if target in text:
+                    term_counter[target] += 1
+                    term_counter_per_corpus[source][target] += 1
             converted_lines.append({'id' : line['id'], 'tokens' : tokens})
 
     sources = sorted(term_counter_per_corpus)
@@ -161,10 +175,23 @@ def main():
     if len(targets) > 0:
         for line_i, line in enumerate(tqdm(converted_lines)):
             line_id = line['id']
-            tokens = line['tokens']
+            tokens = line['tokens']            
+            skip = 0
             for t_i, token in enumerate(tokens):
-                if token in full_target_set:
+                # skip this token if it was part of a multi-word target
+                if skip > 0:
+                    skip =- 1
+                # first check for multi-word targets
+                elif token in multiword_target_dict:
+                    continuations = multiword_target_dict[token]
+                    for continuation in continuations:
+                        if continuation == tokens[t_i+1:t_i+1+len(continuation)]:
+                            term_indices[token + ' ' + ' '.join(continuation)].append((line_id, t_i))
+                            skip = len(continuation)
+                elif token in full_target_set:
                     term_indices[token].append((line_id, t_i))
+                else:
+                    pass
                 
     print("\nTaking random sample of indices:")
     n_over_max_tokens = 0    
