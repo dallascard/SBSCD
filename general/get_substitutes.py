@@ -97,7 +97,7 @@ def main():
 
     tokenizer = tokenizer_class.from_pretrained(base_model)
 
-    if infile is not None:
+    if infile is None:
         infile = os.path.join(tokenized_dir, 'all.jsonlist')
     
     print("Loading infile")
