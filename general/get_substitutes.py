@@ -11,7 +11,6 @@ from tqdm import tqdm
 from transformers import BertModel, BertTokenizerFast, BertForMaskedLM
 from transformers.models.bert.modeling_bert import BertOnlyMLMHead
 
-from common.stopwords import get_stopwords
 from common.misc import get_model_name, get_subdir
 
 
@@ -25,6 +24,8 @@ def main():
                       help='Base dir: default=%default')
     parser.add_option('--model', type=str, default='bert-large-uncased',
                       help='Model that was used for tokenization: default=%default')
+    parser.add_option('--trained-model-dir', type=str, default=None,
+                      help='Override default for the pretrained model (name or location, optional): default=%default')
     parser.add_option('--lemmas', action="store_true", default=False,
                       help='Use lemmas for indexing: default=%default')    
     parser.add_option('--pos', action="store_true", default=False,
@@ -48,8 +49,9 @@ def main():
 
     (options, args) = parser.parse_args()
 
-    basedir = options.basedir
+    basedir = options.basedir    
     base_model = options.model
+    trained_model_dir = options.trained_model_dir
     subdir = options.subdir
     use_lemmas = options.lemmas
     use_pos_tags = options.pos
@@ -66,7 +68,8 @@ def main():
     model_name = get_model_name(base_model)
 
     tokenized_dir = get_subdir(basedir, model_name)
-    trained_model_dir = os.path.join(get_subdir(basedir, model_name, prefix='mlm_pretraining'), 'model')
+    if trained_model_dir is None:
+        trained_model_dir = os.path.join(get_subdir(basedir, model_name, prefix='mlm_pretraining'), 'model')
 
     subdir += '_' + model_name
     if use_lemmas:
@@ -136,7 +139,8 @@ def main():
     vocab_index = {index: term for term, index in vocab.items()}
     sorted_vocab = [vocab_index[i] for i in range(len(vocab))]
 
-    for term_i, target_term in enumerate(sorted(indices)[start:]):
+    for term_i, target_term in enumerate(sorted(indices)[start:]):        
+        n_words = len(target_term.split())
         pairs = indices[target_term]
         print(target_term, len(pairs), term_i + start)
         target_counter = Counter()
@@ -150,7 +154,6 @@ def main():
             line_ids_to_save = []
             token_indices_to_save = []
             top_words = []
-            top_word_probs = []
                 
             running_total = 0
             batch = 0
@@ -171,7 +174,7 @@ def main():
                 line = lines_by_id[line_id]
                 
                 tokens = line['tokens']
-                token = tokens[token_index]
+                token = ' '.join(tokens[token_index:token_index+n_words])
                 target_counter[re.sub('##', '', token)] += 1
 
                 # get the full context for now, and put them into strings, joined by spaces
@@ -179,8 +182,8 @@ def main():
                     left = ' '.join(tokens[:token_index])
                 else:
                     left = ''
-                if token_index < len(tokens)-1:
-                    right = ' '.join(tokens[token_index+1:])
+                if token_index < len(tokens)-n_words:
+                    right = ' '.join(tokens[token_index+n_words:])
                 else:
                     right = ''
                 
@@ -263,8 +266,7 @@ def main():
                         assert len(top_word_list) == top_k
                         assert len(top_word_prob_list) == top_k
 
-                        top_words.append(top_word_list)
-                        top_word_probs.append(top_word_prob_list)
+                        top_words.append(top_word_list)                    
                         sub_counter.update(top_word_list)
 
                     # clear these arrays to start the next batch
@@ -282,7 +284,6 @@ def main():
                     f.write(json.dumps({'line_id': line_id,
                                         'token_index': int(token_indices_to_save[jj]),
                                         'top_terms': top_words[jj],
-                                        #'top_term_probs': top_word_probs[jj]
                                         }) + '\n')
                     
 
