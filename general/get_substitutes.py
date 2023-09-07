@@ -277,7 +277,7 @@ def main():
                     batch += 1
                             
             print("Saving")
-            outfile = os.path.join(substitutes_dir, target_term + '.jsonlist')
+            outfile = os.path.join(substitutes_dir, re.sub(' ', '_', target_term) + '.jsonlist')
             with open(outfile, 'w') as f:
                 for jj, line_id in enumerate(line_ids_to_save):
                     f.write(json.dumps({'line_id': line_id,
