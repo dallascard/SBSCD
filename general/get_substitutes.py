@@ -21,6 +21,8 @@ def main():
     parser = OptionParser(usage=usage)
     parser.add_option('--basedir', type=str, default='/data/dalc/COHA/',
                       help='Base dir: default=%default')
+    parser.add_option('--infile', type=str, default=None,
+                      help='Override infile (optional): default=%default')
     parser.add_option('--model', type=str, default='bert-large-uncased',
                       help='Model that was used for tokenization: default=%default')
     parser.add_option('--trained-model-dir', type=str, default=None,
@@ -49,6 +51,7 @@ def main():
     (options, args) = parser.parse_args()
 
     basedir = options.basedir    
+    infile = options.infile
     base_model = options.model
     trained_model_dir = options.trained_model_dir
     subdir = options.subdir
@@ -94,7 +97,8 @@ def main():
 
     tokenizer = tokenizer_class.from_pretrained(base_model)
 
-    infile = os.path.join(tokenized_dir, 'all.jsonlist')
+    if infile is not None:
+        infile = os.path.join(tokenized_dir, 'all.jsonlist')
     
     print("Loading infile")
     with open(infile) as f:
