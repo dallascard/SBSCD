@@ -36,6 +36,8 @@ def main():
                       help='Restrict token selection to those with at least this many tokens: default=%default')
     parser.add_option('--min-count-per-corpus', type=int, default=3,
                       help='Restrict token selection to those with at least this many tokens per corpus: default=%default')
+    parser.add_option('--min-term-length', type=int, default=2,
+                      help='Minimum term length in characters: default=%default')
     parser.add_option('--max-terms', type=int, default=None,
                       help='Number of words to sample: default=%default')
     parser.add_option('--max-tokens', type=int, default=4000,
@@ -54,9 +56,11 @@ def main():
     use_pos_tags = options.pos
     min_count = options.min_count
     min_count_per_corpus = options.min_count_per_corpus
+    min_term_length = options.min_term_length
     max_terms = options.max_terms
     max_tokens = options.max_tokens
     seed = options.seed
+
 
     np.random.seed(seed)
 
@@ -87,11 +91,17 @@ def main():
     if not os.path.exists(os.path.join(basedir, output_subdir)):
         os.makedirs(os.path.join(basedir, output_subdir))
 
+
     config = {'model': model,
+              'tokenized_dir': tokenized_dir,
+              'model': model,
+              'output_subdir': output_subdir,
               'targets_file': targets_file,
               'use_lemmas': use_lemmas,
               'use_pos_tags': use_pos_tags,
               'min_count': min_count,
+              'min_count_per_corpus': min_count_per_corpus,
+              'min_term_length': min_term_length,
               'max_terms': max_terms,
               'max_tokens': max_tokens,
               'seed': seed
@@ -160,7 +170,7 @@ def main():
     valid_term_set = set([term for term, count in term_counter.items() 
                           if count >= min_count and                          
                           min([term_counter_per_corpus[source][term] for source in sources]) >= min_count_per_corpus and
-                          len(term.split('_')[0]) > 1 and
+                          len(term.split('_')[0]) >= min_term_length and
                           '/' not in term and
                           re.match('.*[a-zA-Z0-9].*', term.split('_')[0]) is not None])
    
