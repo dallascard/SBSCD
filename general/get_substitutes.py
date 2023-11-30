@@ -73,16 +73,19 @@ def main():
     if trained_model_dir is None:
         trained_model_dir = os.path.join(get_subdir(basedir, model_name, prefix='mlm_pretraining'), 'model')
 
+    if infile is not None:
+        tokenized_dir = os.path.dirname(infile)
+
     subdir += '_' + model_name
     if use_lemmas:
         subdir += '_lemmas'
     if use_pos_tags:
         subdir += '_pos'
 
-    with open(os.path.join(basedir, subdir, 'config_embeddings.json'), 'w') as f:
+    with open(os.path.join(tokenized_dir, subdir, 'config_embeddings.json'), 'w') as f:
         json.dump(options.__dict__, f, indent=2)
 
-    substitutes_dir = os.path.join(basedir, subdir, 'subs_masked')
+    substitutes_dir = os.path.join(tokenized_dir, subdir, 'subs_masked')
     if not os.path.exists(substitutes_dir):
         os.makedirs(substitutes_dir)
 
@@ -107,7 +110,7 @@ def main():
     len(lines)
     lines_by_id = {line['id']: line for line in lines}
 
-    index_file = os.path.join(basedir, subdir, 'target_indices.json')
+    index_file = os.path.join(tokenized_dir, subdir, 'target_indices.json')
     with open(index_file) as f:
         indices = json.load(f)
 

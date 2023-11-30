@@ -88,8 +88,8 @@ def main():
         output_subdir += '_lemmas'
     if use_pos_tags:
         output_subdir += '_pos'
-    if not os.path.exists(os.path.join(basedir, output_subdir)):
-        os.makedirs(os.path.join(basedir, output_subdir))
+    if not os.path.exists(os.path.join(tokenized_dir, output_subdir)):
+        os.makedirs(os.path.join(tokenized_dir, output_subdir))
 
 
     config = {'model': model,
@@ -107,7 +107,7 @@ def main():
               'seed': seed
               }
     
-    with open(os.path.join(basedir, output_subdir, 'config_indexing.json'), 'w') as f:
+    with open(os.path.join(tokenized_dir, output_subdir, 'config_indexing.json'), 'w') as f:
         json.dump(config, f, indent=2)    
 
     targets = set()
@@ -228,7 +228,7 @@ def main():
     print("Min instances:", min([len(indices) for indices in final_token_indices_by_term.values()]))
     print("Max instances:", max([len(indices) for indices in final_token_indices_by_term.values()]))
 
-    outfile = os.path.join(basedir, output_subdir, 'target_indices.json')
+    outfile = os.path.join(tokenized_dir, output_subdir, 'target_indices.json')
     
     with open(outfile, 'w') as f:
         json.dump(final_token_indices_by_term, f, indent=2)
