@@ -52,10 +52,11 @@ def main():
     targets_file = options.targets_file
     header = options.header
     
-    targets_df = pd.read_csv(targets_file, sep='\t', index_col=None, header=None)
-    target_words = set(targets_df[0].values)
-    if header:
-        target_words = set(target_words[1:])
+    if targets_file is not None:
+        targets_df = pd.read_csv(targets_file, sep='\t', index_col=None, header=None)
+        target_words = set(targets_df[0].values)
+        if header:
+            target_words = set(target_words[1:])
 
     model_name = get_model_name(model)
 
