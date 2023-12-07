@@ -34,6 +34,10 @@ def main():
                       help='Top-k terms to keep: default=%default')
     parser.add_option('--window-factor', type=float, default=2.0,
                       help='Factor by which to get nearby terms: default=%default')
+    parser.add_option('--targets-file', type=str, default=None,
+                      help='Optionally, limit the evaluation to a list of targets in a .tsv file (first column): default=%default')    
+    parser.add_option('--header', action="store_true", default=False,
+                      help="Set if targets-file has a header to ignore: default=%default")
 
     (options, args) = parser.parse_args()
 
@@ -45,6 +49,13 @@ def main():
     use_pos_tags = options.pos
     top_k = options.top_k
     window_factor = options.window_factor
+    targets_file = options.targets_file
+    header = options.header
+    
+    targets_df = pd.read_csv(targets_file, sep='\t', index_col=None, header=None)
+    target_words = set(targets_df[0].values)
+    if header:
+        target_words = set(target_words[1:])
 
     model_name = get_model_name(model)
 
@@ -147,6 +158,10 @@ def main():
     # get those terms that exist in both corpora
     valid_terms = sorted(sub_counter_by_term_by_source[sources[0]])
     valid_terms_clean = [re.sub('##', '', term) for term in valid_terms]
+
+    if targets_file is not None:
+        valid_terms = [term for t_i, term in enumerate(valid_terms) if valid_terms_clean[t_i] in target_words]
+        valid_terms_clean = [term for term in valid_terms_clean if term in target_words]
 
     print(len(valid_terms))
     print(valid_terms[-5:])
