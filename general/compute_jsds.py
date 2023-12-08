@@ -209,18 +209,9 @@ def main():
 
     nearby_by_target = defaultdict(list)
 
-    if targets_file is not None:
-        target_terms = sorted(set(valid_terms).intersection(target_words))
-        missing = target_words - set(valid_terms)
-        print("Missing terms:")
-        for term in missing:
-            print(term)
-    else:
-        target_terms = valid_terms
-
     relative_jsds = []
     n_neighbours = []
-    for target in enumerate(target_terms):
+    for target in enumerate(valid_terms):
         target_count = term_counter[target]
         target_jsd = jsds_by_term[target]
         nearby_terms = [term for term in valid_terms if target_count/window_factor <= term_counter[term] <= target_count*window_factor and term != target]
