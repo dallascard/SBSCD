@@ -159,9 +159,9 @@ def main():
                             term_counter[token + ' ' + ' '.join(continuation)] += 1
                             term_counter_per_corpus[source][token + ' ' + ' '.join(continuation)] += 1
                             skip = len(continuation)
-                        else:
-                            term_counter[token] += 1
-                            term_counter_per_corpus[source][token] += 1
+                    if skip > 0:
+                        term_counter[token] += 1
+                        term_counter_per_corpus[source][token] += 1
                 else:
                     term_counter[token] += 1
                     term_counter_per_corpus[source][token] += 1
@@ -216,8 +216,8 @@ def main():
                         if continuation == tokens[t_i+1:t_i+1+len(continuation)]:
                             term_indices[token + ' ' + ' '.join(continuation)].append((line_id, t_i))
                             skip = len(continuation)
-                        elif token in full_target_set:
-                            term_indices[token].append((line_id, t_i))
+                    if skip > 0:
+                        term_indices[token].append((line_id, t_i))
                 elif token in full_target_set:
                     term_indices[token].append((line_id, t_i))
                 else:
