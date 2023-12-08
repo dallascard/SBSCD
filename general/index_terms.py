@@ -146,6 +146,7 @@ def main():
                 tokens = [re.sub('##', '', token) for token in tokens]        
 
             # Count tokens, including multi-word targets
+            skip = 0
             for t_i, token in enumerate(tokens):
                 # skip this token if it was part of a multi-word target
                 if skip > 0:
