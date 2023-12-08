@@ -52,11 +52,21 @@ def main():
     targets_file = options.targets_file
     header = options.header
     
+    target_words = set()
     if targets_file is not None:
         targets_df = pd.read_csv(targets_file, sep='\t', index_col=None, header=None)
         target_words = set(targets_df[0].values)
         if header:
             target_words = set(target_words[1:])
+
+    # Find the multiword targets to look for, if any
+    multiword_targets = []
+    multiword_target_dict = defaultdict(list)
+    for target in sorted(target_words):
+        parts = target.split()
+        if len(parts) > 1:
+            multiword_targets.append(target)
+            multiword_target_dict[parts[0]].append(parts[1:])
 
     model_name = get_model_name(model)
 
@@ -109,11 +119,30 @@ def main():
             else:
                 tokens = line['tokens']
             tokens = [re.sub('##', '', token) for token in tokens]        
-        term_counter.update(tokens)
+
+        # Count the tokens, accounting for multi-word targets
+        skip = 0
+        for t_i, token in enumerate(tokens):
+            # skip this token if it was part of a multi-word target
+            if skip > 0:
+                skip =- 1
+            # first check for multi-word targets
+            elif token in multiword_target_dict:
+                continuations = multiword_target_dict[token]
+                for continuation in continuations:
+                    if continuation == tokens[t_i+1:t_i+1+len(continuation)]:
+                        term_counter[token + ' ' + ' '.join(continuation)] += 1
+                        skip = len(continuation)
+            else:
+                term_counter[token] += 1
+
         tokens_by_line_id[line_id] = tokens
         source = line['corpus']
         raw_source_counter[source] += 1
         source_by_id[line_id] = source
+
+    ### FIGURE OUT if I'm handling the multi-word targets correctly
+
 
     for s, c in raw_source_counter.most_common():
         print(s, c)
@@ -136,6 +165,8 @@ def main():
         sub_counter_by_source = defaultdict(Counter)
         basename = os.path.basename(infile)
         term = basename[:-len('.jsonlist')]
+        # replace underscores in filename with spaces
+        term = re.sub('_', ' ', term)
         with open(infile) as f:
             lines = f.readlines()
         for line in lines:
@@ -158,11 +189,7 @@ def main():
 
     # get those terms that exist in both corpora
     valid_terms = sorted(sub_counter_by_term_by_source[sources[0]])
-    valid_terms_clean = [re.sub('##', '', term) for term in valid_terms]
-
-    if targets_file is not None:
-        valid_terms = [term for t_i, term in enumerate(valid_terms) if valid_terms_clean[t_i] in target_words]
-        valid_terms_clean = [term for term in valid_terms_clean if term in target_words]
+    #valid_terms_clean = [re.sub('##', '', term) for term in valid_terms]
 
     print(len(valid_terms))
     print(valid_terms[-5:])
@@ -171,23 +198,32 @@ def main():
         jsd = compute_jsd_from_counters(sub_counter_by_term_by_source[sources[0]][term], sub_counter_by_term_by_source[sources[1]][term])
         jsds.append(jsd)
 
-    relative_jsds = []
-    n_neighbours = []
-
-    valid_term_counts = [term_counter[term] for term in valid_terms_clean]
+    valid_term_counts = [term_counter[term] for term in valid_terms]
 
     order = np.argsort(valid_term_counts)
     print("Least common background terms:")
-    for i in order[:25]:
-        print(valid_terms_clean[i], valid_term_counts[i])
+    for i in order[:15]:
+        print(valid_terms[i], valid_term_counts[i])
 
-    jsds_by_term = dict(zip(valid_terms_clean, jsds))
+    jsds_by_term = dict(zip(valid_terms, jsds))
 
     nearby_by_target = defaultdict(list)
-    for target_i, target in tqdm(enumerate(valid_terms_clean)):
+
+    if targets_file is not None:
+        target_terms = sorted(set(valid_terms).intersection(target_words))
+        missing = target_words - set(valid_terms)
+        print("Missing terms:")
+        for term in missing:
+            print(term)
+    else:
+        target_terms = valid_terms
+
+    relative_jsds = []
+    n_neighbours = []
+    for target in enumerate(target_terms):
         target_count = term_counter[target]
         target_jsd = jsds_by_term[target]
-        nearby_terms = [term for term in valid_terms_clean if target_count/window_factor <= term_counter[term] <= target_count*window_factor and term != target]
+        nearby_terms = [term for term in valid_terms if target_count/window_factor <= term_counter[term] <= target_count*window_factor and term != target]
 
         nearby_by_target[target] = nearby_terms
         n_neighbours.append(len(nearby_terms))
@@ -208,10 +244,10 @@ def main():
 
     scaled_jsds_by_term = dict(zip(valid_terms, relative_jsds))
 
-    output_df['term'] = valid_terms_clean
+    output_df['term'] = valid_terms
     output_df['jsd'] = jsds
-    output_df['count_' + sources[0]] = [term_counter_by_source[sources[0]][term] for term in valid_terms_clean]
-    output_df['count_' + sources[1]] = [term_counter_by_source[sources[1]][term] for term in valid_terms_clean]
+    output_df['count_' + sources[0]] = [term_counter_by_source[sources[0]][term] for term in valid_terms]
+    output_df['count_' + sources[1]] = [term_counter_by_source[sources[1]][term] for term in valid_terms]
     output_df['neighbours'] = n_neighbours
     output_df['scaled_jsd'] = relative_jsds
 
@@ -223,6 +259,21 @@ def main():
 
     with open(outfile + '.json', 'w') as f:
         json.dump(scaled_jsds_by_term, f)
+
+    if targets_file is not None:
+        subset_indices = []
+        for t_i, term in enumerate(output_df['term'].values):
+            if term in target_words:
+                subset_indices.append(t_i)
+        df_subset = output_df.iloc[subset_indices]
+        found = set(df_subset['term'].values)
+        missing = target_words - set(found)
+        print("Missing terms:")
+        for term in missing:
+            print(term)
+
+        output_df.to_csv(outfile + '_targets.csv', index=False)
+
 
 
 
