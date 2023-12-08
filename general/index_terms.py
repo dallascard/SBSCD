@@ -144,14 +144,27 @@ def main():
                 else:
                     tokens = line['tokens']
                 tokens = [re.sub('##', '', token) for token in tokens]        
-            term_counter.update(tokens)
-            term_counter_per_corpus[source].update(tokens)
-            # also count targets with multiple words
-            text = ' '.join(tokens)
-            for target in multiword_targets:
-                if target in text:
+
+            # Count tokens, including multi-word targets
+            for t_i, token in enumerate(tokens):
+                # skip this token if it was part of a multi-word target
+                if skip > 0:
+                    skip =- 1
+                # first check for multi-word targets
+                elif token in multiword_target_dict:
+                    continuations = multiword_target_dict[token]
+                    for continuation in continuations:
+                        if continuation == tokens[t_i+1:t_i+1+len(continuation)]:
+                            term_counter[token + ' ' + ' '.join(continuation)] += 1
+                            term_counter_per_corpus[source][token + ' ' + ' '.join(continuation)] += 1
+                            skip = len(continuation)
+                        else:
+                            term_counter[token] += 1
+                            term_counter_per_corpus[source][target] += 1
+                else:
                     term_counter[target] += 1
                     term_counter_per_corpus[source][target] += 1
+
             converted_lines.append({'id' : line['id'], 'tokens' : tokens})
 
     sources = sorted(term_counter_per_corpus)
@@ -202,6 +215,8 @@ def main():
                         if continuation == tokens[t_i+1:t_i+1+len(continuation)]:
                             term_indices[token + ' ' + ' '.join(continuation)].append((line_id, t_i))
                             skip = len(continuation)
+                        elif token in full_target_set:
+                            term_indices[token].append((line_id, t_i))
                 elif token in full_target_set:
                     term_indices[token].append((line_id, t_i))
                 else:
