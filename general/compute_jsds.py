@@ -137,7 +137,7 @@ def main():
                     if continuation == tokens[t_i+1:t_i+1+len(continuation)]:
                         term_counter[token + ' ' + ' '.join(continuation)] += 1
                         skip = len(continuation)    
-                if skip > 0:
+                if skip == 0:
                     term_counter[token] += 1
             else:
                 term_counter[token] += 1
