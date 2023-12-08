@@ -161,10 +161,10 @@ def main():
                             skip = len(continuation)
                         else:
                             term_counter[token] += 1
-                            term_counter_per_corpus[source][target] += 1
+                            term_counter_per_corpus[source][token] += 1
                 else:
-                    term_counter[target] += 1
-                    term_counter_per_corpus[source][target] += 1
+                    term_counter[token] += 1
+                    term_counter_per_corpus[source][token] += 1
 
             converted_lines.append({'id' : line['id'], 'tokens' : tokens})
 
