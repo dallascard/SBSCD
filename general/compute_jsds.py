@@ -211,7 +211,7 @@ def main():
 
     relative_jsds = []
     n_neighbours = []
-    for target in enumerate(valid_terms):
+    for target in tqdm(valid_terms):
         target_count = term_counter[target]
         target_jsd = jsds_by_term[target]
         nearby_terms = [term for term in valid_terms if target_count/window_factor <= term_counter[term] <= target_count*window_factor and term != target]
