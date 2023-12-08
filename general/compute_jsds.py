@@ -68,6 +68,10 @@ def main():
             multiword_targets.append(target)
             multiword_target_dict[parts[0]].append(parts[1:])
 
+    print("Multiword targets:", multiword_targets)
+    for k, v in multiword_target_dict.items():
+        print(k, v)
+
     model_name = get_model_name(model)
 
     subdir += '_' + model_name
@@ -142,9 +146,6 @@ def main():
         source = line['corpus']
         raw_source_counter[source] += 1
         source_by_id[line_id] = source
-
-    ### FIGURE OUT if I'm handling the multi-word targets correctly
-
 
     for s, c in raw_source_counter.most_common():
         print(s, c)
@@ -265,7 +266,8 @@ def main():
         for term in missing:
             print(term)
 
-        output_df.to_csv(outfile + '_targets.csv', index=False)
+        print("Saving subset to:", outfile + '_targets.csv')
+        df_subset.to_csv(outfile + '_targets.csv', index=False)
 
 
 
