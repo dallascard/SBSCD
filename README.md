@@ -67,7 +67,7 @@ Once again, use the `--lemmas` and `--pos` flags if you used them above. Other r
 
 The output of this will be a file called `<basedir>/embeddings_<model>/jsd_scores.csv` (and an equivalent `.json` file) containing the scaled estimate for all terms, including all target terms. 
 
-Additional scripts that may be useful include `evaluate.py` (which allows you to evaluate against gold scores) and `get_top_repalcements.py` (which gather the top replacement terms from each corpus).
+Additional scripts that may be useful include `evaluate.py` (which allows you to evaluate against gold scores) and `get_top_replacements.py` (which gathers the top replacement terms from each corpus).
 
 ### Replicating GEMS experiments
 

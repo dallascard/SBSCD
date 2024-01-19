@@ -20,6 +20,8 @@ def main():
     parser = OptionParser(usage=usage)
     parser.add_option('--basedir', type=str, default='/data/dalc/COHA/',
                       help='Base directory: default=%default')
+    parser.add_option('--infile', type=str, default=None,
+                      help='Override data file (optional): default=%default')    
     parser.add_option('--model', type=str, default='bert-large-uncased',
                       help='Model that was used for tokenization: default=%default')
     parser.add_option('--lemmas', action="store_true", default=False,
@@ -36,6 +38,7 @@ def main():
     (options, args) = parser.parse_args()
 
     basedir = options.basedir
+    infile = options.infile
     model = options.model
     use_lemmas = options.lemmas
     use_pos_tags = options.pos
@@ -61,8 +64,11 @@ def main():
         json.dump(options.__dict__, f, indent=2)
 
     print("Loading data")
-    tokenized_dir = get_subdir(basedir, model_name)
-    tokenized_file = os.path.join(tokenized_dir, 'all.jsonlist')
+    if infile is None:
+        tokenized_dir = get_subdir(basedir, model_name)
+        tokenized_file = os.path.join(tokenized_dir, 'all.jsonlist')
+    else:
+        tokenized_file = infile
     tokenized_lines = []
     with open(tokenized_file) as f:
         for line in f:
