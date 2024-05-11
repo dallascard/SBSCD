@@ -25,6 +25,8 @@ def main():
                       help='ID field name: default=%default')
     parser.add_option('--source-field', type=str, default='group',
                       help='Source field name (to distinguish two corpora): default=%default')
+    parser.add_option('--source-field-threshold', type=float, default=None,
+                      help='Optional theshold for splitting a corpus by a numeric source-field into < and >=: default=%default')
     parser.add_option('--text-field', type=str, default='text',
                       help='Text field name: default=%default')
     parser.add_option('--model', type=str, default='bert-large-uncased',
@@ -36,6 +38,7 @@ def main():
     infile = options.infile
     id_field = options.id_field
     source_field = options.source_field
+    source_field_threshold = options.source_field_threshold
     text_field = options.text_field
     model_name_or_path = options.model
 
@@ -72,7 +75,14 @@ def main():
         line_id = line[id_field]
         outline = {}
         outline['id'] = line_id
-        outline['corpus'] = line[source_field]
+        if source_field_threshold is not None:
+            if float(line[source_field]) < source_field_threshold:
+                outline['corpus'] = source_field + '<' + str(source_field_threshold)
+            else:
+                outline['corpus'] = source_field + '>=' + str(source_field_threshold)
+        else:
+            outline['corpus'] = line[source_field]
+        
         # drop the header
         if text_field not in line:
             print('No text in', line_id)
