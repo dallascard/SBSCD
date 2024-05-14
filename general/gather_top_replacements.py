@@ -47,6 +47,7 @@ def main():
     top_k = options.top_k
 
     model_name = get_model_name(model)
+    tokenized_dir = get_subdir(basedir, model_name)
 
     subdir += '_' + model_name
     if use_lemmas:
@@ -54,9 +55,9 @@ def main():
     if use_pos_tags:
         subdir += '_pos'
 
-    substitutes_dir = os.path.join(basedir, subdir, 'subs_masked')
+    substitutes_dir = os.path.join(tokenized_dir, subdir, 'subs_masked')
 
-    output_dir = os.path.join(basedir, subdir, output_subdir)
+    output_dir = os.path.join(tokenized_dir, subdir, output_subdir)
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
@@ -65,7 +66,6 @@ def main():
 
     print("Loading data")
     if infile is None:
-        tokenized_dir = get_subdir(basedir, model_name)
         tokenized_file = os.path.join(tokenized_dir, 'all.jsonlist')
     else:
         tokenized_file = infile
