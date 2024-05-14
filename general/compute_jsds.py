@@ -80,14 +80,15 @@ def main():
     if use_pos_tags:
         subdir += '_pos'
 
+    tokenized_dir = get_subdir(basedir, model_name)
+    
     with open(os.path.join(basedir, subdir, 'config_jsd.json'), 'w') as f:
         json.dump(options.__dict__, f, indent=2)
 
-    substitutes_dir = os.path.join(basedir, subdir, 'subs_masked')
+    substitutes_dir = os.path.join(basedir, model_name, subdir, 'subs_masked')
 
     print("Loading data")
     if infile is None:
-        tokenized_dir = get_subdir(basedir, model_name)
         tokenized_file = os.path.join(tokenized_dir, 'all.jsonlist')
     else:
         tokenized_file = infile
