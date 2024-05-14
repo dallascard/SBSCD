@@ -73,19 +73,18 @@ def main():
         print(k, v)
 
     model_name = get_model_name(model)
+    tokenized_dir = get_subdir(basedir, model_name)
 
     subdir += '_' + model_name
     if use_lemmas:
         subdir += '_lemmas'
     if use_pos_tags:
         subdir += '_pos'
-
-    tokenized_dir = get_subdir(basedir, model_name)
     
-    with open(os.path.join(basedir, model_name, subdir, 'config_jsd.json'), 'w') as f:
+    with open(os.path.join(tokenized_dir, subdir, 'config_jsd.json'), 'w') as f:
         json.dump(options.__dict__, f, indent=2)
 
-    substitutes_dir = os.path.join(basedir, model_name, subdir, 'subs_masked')
+    substitutes_dir = os.path.join(tokenized_dir, subdir, 'subs_masked')
 
     print("Loading data")
     if infile is None:
