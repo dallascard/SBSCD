@@ -247,7 +247,7 @@ def main():
 
     output_df.sort_values(by='scaled_jsd', ascending=False, inplace=True)
 
-    outfile = os.path.join(basedir, subdir, 'jsd_scores')
+    outfile = os.path.join(tokenized_dir, subdir, 'jsd_scores')
 
     output_df.to_csv(outfile + '.csv', index=False)
 
