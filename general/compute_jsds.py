@@ -82,7 +82,7 @@ def main():
 
     tokenized_dir = get_subdir(basedir, model_name)
     
-    with open(os.path.join(basedir, subdir, 'config_jsd.json'), 'w') as f:
+    with open(os.path.join(basedir, model_name, subdir, 'config_jsd.json'), 'w') as f:
         json.dump(options.__dict__, f, indent=2)
 
     substitutes_dir = os.path.join(basedir, model_name, subdir, 'subs_masked')
