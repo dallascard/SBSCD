@@ -81,21 +81,24 @@ def main():
     if use_pos_tags:
         subdir += '_pos'
     
+    print("Loading data")
+    if infile is None:
+        tokenized_file = os.path.join(tokenized_dir, 'all.jsonlist')
+    else:
+        # if an infile is provided, use its directory as the base path
+        tokenized_file = infile
+        tokenized_dir = os.path.dirname(infile)
+
     with open(os.path.join(tokenized_dir, subdir, 'config_jsd.json'), 'w') as f:
         json.dump(options.__dict__, f, indent=2)
 
     substitutes_dir = os.path.join(tokenized_dir, subdir, 'subs_masked')
 
-    print("Loading data")
-    if infile is None:
-        tokenized_file = os.path.join(tokenized_dir, 'all.jsonlist')
-    else:
-        tokenized_file = infile
     tokenized_lines = []
     with open(tokenized_file) as f:
         for line in f:
             tokenized_lines.append(json.loads(line))
-    
+
     if use_lemmas:
         lemmatized_file = os.path.join(tokenized_dir, 'lemmatized.jsonlist')    
         lemmatized_lines = []
