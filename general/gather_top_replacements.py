@@ -55,6 +55,13 @@ def main():
     if use_pos_tags:
         subdir += '_pos'
 
+    print("Loading data")
+    if infile is None:
+        tokenized_file = os.path.join(tokenized_dir, 'all.jsonlist')
+    else:
+        tokenized_file = infile
+        tokenized_dir = os.path.dirname(infile)
+
     substitutes_dir = os.path.join(tokenized_dir, subdir, 'subs_masked')
 
     output_dir = os.path.join(tokenized_dir, subdir, output_subdir)
@@ -64,11 +71,6 @@ def main():
     with open(os.path.join(output_dir, 'config_gather.json'), 'w') as f:
         json.dump(options.__dict__, f, indent=2)
 
-    print("Loading data")
-    if infile is None:
-        tokenized_file = os.path.join(tokenized_dir, 'all.jsonlist')
-    else:
-        tokenized_file = infile
     tokenized_lines = []
     with open(tokenized_file) as f:
         for line in f:
