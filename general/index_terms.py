@@ -42,6 +42,8 @@ def main():
                       help='Number of words to sample: default=%default')
     parser.add_option('--max-tokens', type=int, default=4000,
                       help='Limit the size of the index by pre-sampling: default=%default')
+    parser.add_option('--stratified', action="store_true", default=False,
+                      help='Use stratified sampling for random terms: default=%default')    
     parser.add_option('--seed', type=int, default=42,
                      help='Random seed: default=%default')
 
@@ -59,6 +61,7 @@ def main():
     min_term_length = options.min_term_length
     max_terms = options.max_terms
     max_tokens = options.max_tokens
+    stratified = options.stratified
     seed = options.seed
 
 
@@ -191,7 +194,10 @@ def main():
    
     remaining_set = valid_term_set - set(targets)
     if max_terms is not None and len(remaining_set) > max_terms:
-        remaining_set = set(np.random.choice(list(remaining_set), size=max_terms-len(targets), replace=False))
+        if stratified:
+            remaining_set = set(get_stratified_sample(sorted(remaining_set), term_counter, max_terms-len(targets)))
+        else:
+            remaining_set = set(np.random.choice(list(remaining_set), size=max_terms-len(targets), replace=False))
 
     full_target_set = set(targets).union(remaining_set)
 
@@ -250,6 +256,29 @@ def main():
     
     with open(outfile, 'w') as f:
         json.dump(final_token_indices_by_term, f, indent=2)
+
+
+def get_stratified_sample(terms, counter, n):    
+    terms_by_count = defaultdict(Counter)
+    for term in terms:
+        terms_by_count[counter[term]][term] += 1
+
+    sampled_terms = []
+    remaining = n
+    while len(sampled_terms) < n:
+        sample_counts = np.random.choice(list(terms_by_count.keys()), size=min(len(terms_by_count), remaining), replace=False)
+        for count in sample_counts:
+            sampled = np.random.choice(list(terms_by_count[count].keys()), size=1)[0]
+            sampled_terms.append(sampled)
+            terms_by_count[count].pop(sampled)
+            if len(terms_by_count[count]) == 0:
+                terms_by_count.pop(count)
+            remaining -= 1
+    
+    if len(sampled_terms) > n:
+        sampled_terms = sampled_terms[:n]
+  
+    return sampled_terms
 
 
 if __name__ == '__main__':
