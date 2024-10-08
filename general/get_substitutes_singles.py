@@ -50,7 +50,7 @@ def main():
     (options, args) = parser.parse_args()
 
     basedir = options.basedir    
-    infile = options.infileq
+    infile = options.infile
     base_model = options.model
     trained_model_dir = options.trained_model_dir
     subdir = options.subdir
