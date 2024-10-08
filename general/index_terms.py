@@ -153,7 +153,7 @@ def main():
             for t_i, token in enumerate(tokens):
                 # skip this token if it was part of a multi-word target
                 if skip > 0:
-                    skip =- 1
+                    skip -= 1
                 # first check for multi-word targets
                 elif token in multiword_target_dict:
                     continuations = multiword_target_dict[token]
