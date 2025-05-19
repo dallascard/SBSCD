@@ -27,6 +27,8 @@ def main():
                       help='Model that was used for tokenization: default=%default')
     parser.add_option('--trained-model-dir', type=str, default=None,
                       help='Override default for the pretrained model (name or location, optional): default=%default')
+    parser.add_option('--use-base', action="store_true", default=False,
+                      help='Use the base model, rather than one with additional pretraining: default=%default')    
     parser.add_option('--lemmas', action="store_true", default=False,
                       help='Use lemmas for indexing: default=%default')    
     parser.add_option('--pos', action="store_true", default=False,
@@ -54,6 +56,7 @@ def main():
     infile = options.infile
     base_model = options.model
     trained_model_dir = options.trained_model_dir
+    use_base = options.use_base
     subdir = options.subdir
     use_lemmas = options.lemmas
     use_pos_tags = options.pos
@@ -70,7 +73,9 @@ def main():
     model_name = get_model_name(base_model)
 
     tokenized_dir = get_subdir(basedir, model_name)
-    if trained_model_dir is None:
+    if use_base:
+        trained_model_dir = base_model
+    elif trained_model_dir is None:
         trained_model_dir = os.path.join(get_subdir(basedir, model_name, prefix='mlm_pretraining'), 'model')
 
     if infile is not None:
